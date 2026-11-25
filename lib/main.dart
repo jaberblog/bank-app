@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const BankingDashboardApp());
-}
+void main() => runApp(const BankingDashboardApp());
 
 class BankingDashboardApp extends StatelessWidget {
   const BankingDashboardApp({super.key});
@@ -32,6 +30,22 @@ class CardDashboardScreen extends StatefulWidget {
 class _CardDashboardScreenState extends State<CardDashboardScreen> {
   int _selectedNavIndex = 0;
 
+  static const List<Map<String, String>> _recipients = [
+    {'name': 'Darlene Alde...', 'img': 'https://i.pravatar.cc/150?img=47'},
+    {'name': 'Elliot Alderson', 'img': 'https://i.pravatar.cc/150?img=12'},
+    {'name': 'Leon', 'img': 'https://i.pravatar.cc/150?img=68'},
+    {'name': 'Square Planet', 'img': 'https://i.pravatar.cc/150?img=33'},
+    {'name': 'Square Planet', 'img': 'https://i.pravatar.cc/150?img=33'},
+  ];
+
+  static const List<String> _navLabels = [
+    'Home',
+    'Transfers',
+    'Cards',
+    'Stocks',
+    'Offers',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,38 +59,28 @@ class _CardDashboardScreenState extends State<CardDashboardScreen> {
                 physics: const BouncingScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: const [
-                    SizedBox(height: 16),
-                    _StatusAndGreetingSection(),
-                    SizedBox(height: 18),
-                    _PaymentCardsSection(),
-                    SizedBox(height: 18),
-                    _RecipientsAndActionsSection(),
-                    SizedBox(height: 26),
-                    _RecentTransactionsSection(),
+                  children: [
+                    const SizedBox(height: 16),
+                    _buildStatusAndGreeting(),
+                    const SizedBox(height: 18),
+                    _buildPaymentCards(),
+                    const SizedBox(height: 18),
+                    _buildRecipientsAndActions(),
+                    const SizedBox(height: 26),
+                    _buildRecentTransactions(),
                   ],
                 ),
               ),
             ),
-            _BottomNavigationSection(
-              selectedIndex: _selectedNavIndex,
-              onTap: (index) => setState(() => _selectedNavIndex = index),
-            ),
+            _buildBottomNavigation(),
           ],
         ),
       ),
     );
   }
-}
 
-// ============================================================================
-// 1. STATUS AND GREETING SECTION (Full-Width)
-// ============================================================================
-class _StatusAndGreetingSection extends StatelessWidget {
-  const _StatusAndGreetingSection();
-
-  @override
-  Widget build(BuildContext context) {
+  // 1. STATUS AND GREETING
+  Widget _buildStatusAndGreeting() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: Column(
@@ -85,7 +89,6 @@ class _StatusAndGreetingSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Profile Avatar (32x32, cornerRadius: 16)
               Container(
                 width: 32,
                 height: 32,
@@ -93,7 +96,9 @@ class _StatusAndGreetingSection extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: const Color(0xFFD0DFE7),
                   image: DecorationImage(
-                    image: const NetworkImage('https://i.pravatar.cc/150?img=11'),
+                    image: const NetworkImage(
+                      'https://i.pravatar.cc/150?img=11',
+                    ),
                     fit: BoxFit.cover,
                     onError: (_, __) {},
                   ),
@@ -102,26 +107,15 @@ class _StatusAndGreetingSection extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Favorite filled star (19x19)
                   const Icon(
                     Icons.star_rounded,
                     color: Color(0xFFF5B400),
                     size: 22,
                   ),
                   const SizedBox(width: 26),
-                  // Bell icon (20x20)
-                  SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CustomPaint(painter: _BellIconPainter()),
-                  ),
+                  _svgIcon(_IconType.bell, 20),
                   const SizedBox(width: 24),
-                  // Settings icon (20x20)
-                  SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CustomPaint(painter: _SettingsIconPainter()),
-                  ),
+                  _svgIcon(_IconType.settings, 20),
                   const SizedBox(width: 12),
                 ],
               ),
@@ -176,22 +170,19 @@ class _StatusAndGreetingSection extends StatelessWidget {
       ),
     );
   }
-}
 
-// ============================================================================
-// 2. PAYMENT CARDS SECTION (Full-Width Horizontal Carousel)
-// ============================================================================
-class _PaymentCardsSection extends StatelessWidget {
-  const _PaymentCardsSection();
-
-  @override
-  Widget build(BuildContext context) {
+  // 2. PAYMENT CARDS (FULL-WIDTH RESPONSIVE CAROUSEL)
+  Widget _buildPaymentCards() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double primaryCardWidth =
-            (constraints.maxWidth * 0.74).clamp(289.0, 480.0);
-        final double secondaryCardWidth =
-            (constraints.maxWidth * 0.58).clamp(225.0, 360.0);
+        final double primaryWidth = (constraints.maxWidth * 0.74).clamp(
+          289.0,
+          480.0,
+        );
+        final double secondaryWidth = (constraints.maxWidth * 0.58).clamp(
+          225.0,
+          360.0,
+        );
 
         return SizedBox(
           height: 185,
@@ -200,9 +191,8 @@ class _PaymentCardsSection extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             children: [
-              // Visa Debit Card
               Container(
-                width: primaryCardWidth,
+                width: primaryWidth,
                 height: 181,
                 margin: const EdgeInsets.only(bottom: 4),
                 padding: const EdgeInsets.fromLTRB(23, 20, 20, 16),
@@ -211,10 +201,7 @@ class _PaymentCardsSection extends StatelessWidget {
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF6887FF),
-                      Color(0xFF3D41C9),
-                    ],
+                    colors: [Color(0xFF6887FF), Color(0xFF3D41C9)],
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -294,9 +281,8 @@ class _PaymentCardsSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              // Add New Account Card
               Container(
-                width: secondaryCardWidth,
+                width: secondaryWidth,
                 height: 181,
                 margin: const EdgeInsets.only(bottom: 4),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -311,11 +297,7 @@ class _PaymentCardsSection extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      width: 19,
-                      height: 19,
-                      child: CustomPaint(painter: _PlusIconPainter()),
-                    ),
+                    _svgIcon(_IconType.plus, 19),
                     const SizedBox(height: 6),
                     const Text(
                       'Add new account',
@@ -346,23 +328,9 @@ class _PaymentCardsSection extends StatelessWidget {
       },
     );
   }
-}
 
-// ============================================================================
-// 3. RECIPIENTS AND PAYMENT ACTIONS SECTION (Full-Width)
-// ============================================================================
-class _RecipientsAndActionsSection extends StatelessWidget {
-  const _RecipientsAndActionsSection();
-
-  static const List<Map<String, String>> _recipients = [
-    {'name': 'Darlene Alde...', 'img': 'https://i.pravatar.cc/150?img=47'},
-    {'name': 'Elliot Alderson', 'img': 'https://i.pravatar.cc/150?img=12'},
-    {'name': 'Leon', 'img': 'https://i.pravatar.cc/150?img=68'},
-    {'name': 'Square Planet', 'img': 'https://i.pravatar.cc/150?img=33'},
-  ];
-
-  @override
-  Widget build(BuildContext context) {
+  // 3. RECIPIENTS AND PAYMENT ACTIONS
+  Widget _buildRecipientsAndActions() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: Column(
@@ -414,7 +382,6 @@ class _RecipientsAndActionsSection extends StatelessWidget {
             }).toList(),
           ),
           const SizedBox(height: 17),
-          // Full-Width Payment Action Pill
           Container(
             width: double.infinity,
             height: 57,
@@ -427,81 +394,18 @@ class _RecipientsAndActionsSection extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 150,
-                  child: Container(
-                    height: 43,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 21,
-                          height: 21,
-                          child: CustomPaint(
-                            painter: _ArrowVerticalPainter(isUp: true),
-                          ),
-                        ),
-                        const SizedBox(width: 9),
-                        const Flexible(
-                          child: Text(
-                            'Send Payment',
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Color(0xFF758191),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400,
-                              height: 16 / 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  child: _actionPillButton('Send Payment', _IconType.arrowUp),
                 ),
                 const SizedBox(width: 4),
                 Expanded(
                   flex: 166,
-                  child: Container(
-                    height: 43,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 21,
-                          height: 21,
-                          child: CustomPaint(
-                            painter: _ArrowVerticalPainter(isUp: false),
-                          ),
-                        ),
-                        const SizedBox(width: 9),
-                        const Flexible(
-                          child: Text(
-                            'Receive Payment',
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Color(0xFF758191),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400,
-                              height: 16 / 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: _actionPillButton(
+                    'Receive Payment',
+                    _IconType.arrowDown,
                   ),
                 ),
                 const SizedBox(width: 4),
-                SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CustomPaint(painter: _DotsIconPainter()),
-                ),
+                _svgIcon(_IconType.dots, 20),
               ],
             ),
           ),
@@ -509,16 +413,38 @@ class _RecipientsAndActionsSection extends StatelessWidget {
       ),
     );
   }
-}
 
-// ============================================================================
-// 4. RECENT TRANSACTIONS SECTION (Full-Width)
-// ============================================================================
-class _RecentTransactionsSection extends StatelessWidget {
-  const _RecentTransactionsSection();
+  Widget _actionPillButton(String label, _IconType iconType) {
+    return Container(
+      height: 43,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _svgIcon(iconType, 21),
+          const SizedBox(width: 9),
+          Flexible(
+            child: Text(
+              label,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFF758191),
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                height: 16 / 13,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  // 4. RECENT TRANSACTIONS
+  Widget _buildRecentTransactions() {
     return Stack(
       children: [
         Padding(
@@ -540,10 +466,10 @@ class _RecentTransactionsSection extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CustomPaint(painter: _RightArrowPainter()),
+                      _svgIcon(
+                        _IconType.arrowRight,
+                        20,
+                        color: const Color(0xFF1D2021),
                       ),
                     ],
                   ),
@@ -559,32 +485,32 @@ class _RecentTransactionsSection extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 18),
-              const _TransactionTile(
-                title: 'Square planet',
-                subtitle: 'Pro plan Complete',
-                amount: '\$265.00',
-                date: '09.01.2024',
-                iconBgColor: Color(0xFF3D41C9),
-                icon: Icons.public_rounded,
-                showDivider: true,
+              _transactionTile(
+                'Square planet',
+                'Pro plan Complete',
+                '\$265.00',
+                '09.01.2024',
+                const Color(0xFF3D41C9),
+                Icons.public_rounded,
+                true,
               ),
-              const _TransactionTile(
-                title: 'Spotify',
-                subtitle: 'Card Payment',
-                amount: '\$10.99',
-                date: '08.01.2024',
-                iconBgColor: Color(0xFF1DB954),
-                icon: Icons.graphic_eq_rounded,
-                showDivider: true,
+              _transactionTile(
+                'Spotify',
+                'Card Payment',
+                '\$10.99',
+                '08.01.2024',
+                const Color(0xFF1DB954),
+                Icons.graphic_eq_rounded,
+                true,
               ),
-              const _TransactionTile(
-                title: 'Apple',
-                subtitle: 'Card Payment',
-                amount: '\$3499.00',
-                date: '08.01.2024',
-                iconBgColor: Color(0xFF1D2021),
-                icon: Icons.apple_rounded,
-                showDivider: false,
+              _transactionTile(
+                'Apple',
+                'Card Payment',
+                '\$3499.00',
+                '08.01.2024',
+                const Color(0xFF1D2021),
+                Icons.apple_rounded,
+                false,
               ),
             ],
           ),
@@ -612,29 +538,16 @@ class _RecentTransactionsSection extends StatelessWidget {
       ],
     );
   }
-}
 
-class _TransactionTile extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String amount;
-  final String date;
-  final Color iconBgColor;
-  final IconData icon;
-  final bool showDivider;
-
-  const _TransactionTile({
-    required this.title,
-    required this.subtitle,
-    required this.amount,
-    required this.date,
-    required this.iconBgColor,
-    required this.icon,
-    required this.showDivider,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _transactionTile(
+    String title,
+    String subtitle,
+    String amount,
+    String date,
+    Color bg,
+    IconData icon,
+    bool divider,
+  ) {
     return SizedBox(
       height: 60,
       child: Column(
@@ -644,10 +557,7 @@ class _TransactionTile extends StatelessWidget {
               Container(
                 width: 44,
                 height: 44,
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
                 child: Icon(icon, color: Colors.white, size: 24),
               ),
               const SizedBox(width: 13),
@@ -705,7 +615,7 @@ class _TransactionTile extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          if (showDivider)
+          if (divider)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 13.0),
               child: Container(
@@ -719,23 +629,16 @@ class _TransactionTile extends StatelessWidget {
       ),
     );
   }
-}
 
-// ============================================================================
-// 5. BOTTOM NAVIGATION SECTION (Full-Width)
-// ============================================================================
-class _BottomNavigationSection extends StatelessWidget {
-  final int selectedIndex;
-  final ValueChanged<int> onTap;
-
-  const _BottomNavigationSection({
-    required this.selectedIndex,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final List<String> labels = ['Home', 'Transfers', 'Cards', 'Stocks', 'Offers'];
+  // 5. BOTTOM NAVIGATION
+  Widget _buildBottomNavigation() {
+    const List<_IconType> navIcons = [
+      _IconType.navHome,
+      _IconType.navTransfers,
+      _IconType.navCards,
+      _IconType.navStocks,
+      _IconType.navOffers,
+    ];
 
     return Container(
       width: double.infinity,
@@ -745,12 +648,12 @@ class _BottomNavigationSection extends StatelessWidget {
         children: [
           const SizedBox(height: 9),
           Row(
-            children: List.generate(labels.length, (index) {
-              final bool isSelected = selectedIndex == index;
+            children: List.generate(_navLabels.length, (i) {
+              final bool selected = _selectedNavIndex == i;
               return Expanded(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () => onTap(index),
+                  onTap: () => setState(() => _selectedNavIndex = i),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -759,27 +662,22 @@ class _BottomNavigationSection extends StatelessWidget {
                         height: 30,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: isSelected
+                          color: selected
                               ? const Color(0xFF1D2021)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(19),
                         ),
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CustomPaint(
-                            painter: _NavIconPainter(
-                              index: index,
-                              color: isSelected
-                                  ? const Color(0xFFEAF1F6)
-                                  : const Color(0xFF1D2021),
-                            ),
-                          ),
+                        child: _svgIcon(
+                          navIcons[i],
+                          20,
+                          color: selected
+                              ? const Color(0xFFEAF1F6)
+                              : const Color(0xFF1D2021),
                         ),
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        labels[index],
+                        _navLabels[i],
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Color(0xFF1D2021),
@@ -808,161 +706,136 @@ class _BottomNavigationSection extends StatelessWidget {
       ),
     );
   }
-}
 
-// ============================================================================
-// CUSTOM SVG PAINTERS (Exact Figma Vector Paths)
-// ============================================================================
-Paint _strokePaint(Color color) => Paint()
-  ..color = color
-  ..style = PaintingStyle.stroke
-  ..strokeWidth = 1.8
-  ..strokeCap = StrokeCap.square;
-
-class _BellIconPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = _strokePaint(const Color(0xFF758191));
-    final path = Path()
-      ..moveTo(10, 2.5)
-      ..cubicTo(12.76, 2.5, 15, 4.74, 15, 7.5)
-      ..lineTo(15, 11.67)
-      ..lineTo(16.67, 15)
-      ..lineTo(3.33, 15)
-      ..lineTo(5, 11.67)
-      ..lineTo(5, 7.5)
-      ..cubicTo(5, 4.74, 7.24, 2.5, 10, 2.5)
-      ..close()
-      ..moveTo(10, 2.5)
-      ..lineTo(10, 0.83)
-      ..moveTo(8.33, 18.33)
-      ..lineTo(11.67, 18.33);
-    canvas.drawPath(path, paint);
+  Widget _svgIcon(
+    _IconType type,
+    double size, {
+    Color color = const Color(0xFF758191),
+  }) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(
+        painter: _UnifiedSvgPainter(type: type, color: color),
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class _SettingsIconPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = _strokePaint(const Color(0xFF758191));
-    final path = Path()
-      ..moveTo(7.5, 1.67)
-      ..lineTo(6.67, 4.17)
-      ..lineTo(4.17, 3.33)
-      ..lineTo(1.67, 7.5)
-      ..lineTo(4.17, 9.17)
-      ..lineTo(4.17, 11.67)
-      ..lineTo(1.67, 13.33)
-      ..lineTo(4.17, 17.5)
-      ..lineTo(6.67, 16.67)
-      ..lineTo(8.33, 18.33)
-      ..lineTo(12.5, 18.33)
-      ..lineTo(13.33, 15.83)
-      ..lineTo(15.83, 16.67)
-      ..lineTo(18.33, 12.5)
-      ..lineTo(15.83, 10.83)
-      ..lineTo(15.83, 8.33)
-      ..lineTo(18.33, 6.67)
-      ..lineTo(15.83, 2.5)
-      ..lineTo(13.33, 3.33)
-      ..lineTo(11.67, 1.67)
-      ..close();
-    canvas.drawPath(path, paint);
-    canvas.drawCircle(const Offset(10, 10), 3.33, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+// 6. UNIFIED EXACT SVG PAINTER
+enum _IconType {
+  bell,
+  settings,
+  plus,
+  arrowUp,
+  arrowDown,
+  dots,
+  arrowRight,
+  navHome,
+  navTransfers,
+  navCards,
+  navStocks,
+  navOffers,
 }
 
-class _PlusIconPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = _strokePaint(const Color(0xFF758191));
-    canvas.drawLine(const Offset(9.5, 3.17), const Offset(9.5, 15.83), paint);
-    canvas.drawLine(const Offset(3.17, 9.5), const Offset(15.83, 9.5), paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _ArrowVerticalPainter extends CustomPainter {
-  final bool isUp;
-  _ArrowVerticalPainter({required this.isUp});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = _strokePaint(const Color(0xFF758191));
-    final path = Path();
-    if (isUp) {
-      path
-        ..moveTo(10.5, 18.375)
-        ..lineTo(10.5, 3.5)
-        ..moveTo(16.625, 9.625)
-        ..lineTo(10.5, 3.5)
-        ..lineTo(4.375, 9.625);
-    } else {
-      path
-        ..moveTo(10.5, 2.625)
-        ..lineTo(10.5, 17.5)
-        ..moveTo(16.625, 11.375)
-        ..lineTo(10.5, 17.5)
-        ..lineTo(4.375, 11.375);
-    }
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _DotsIconPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = _strokePaint(const Color(0xFF758191));
-    for (final y in [4.17, 10.0, 15.83]) {
-      canvas.drawCircle(Offset(10, y), 0.92, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _RightArrowPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = _strokePaint(const Color(0xFF1D2021));
-    final path = Path()
-      ..moveTo(2.5, 10)
-      ..lineTo(16.67, 10)
-      ..moveTo(11.67, 15)
-      ..lineTo(16.67, 10)
-      ..lineTo(11.67, 5);
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _NavIconPainter extends CustomPainter {
-  final int index;
+class _UnifiedSvgPainter extends CustomPainter {
+  final _IconType type;
   final Color color;
 
-  _NavIconPainter({required this.index, required this.color});
+  const _UnifiedSvgPainter({required this.type, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = _strokePaint(color);
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.square;
     final path = Path();
 
-    switch (index) {
-      case 0: // Home
+    switch (type) {
+      case _IconType.bell:
+        path
+          ..moveTo(10, 2.5)
+          ..cubicTo(12.76, 2.5, 15, 4.74, 15, 7.5)
+          ..lineTo(15, 11.67)
+          ..lineTo(16.67, 15)
+          ..lineTo(3.33, 15)
+          ..lineTo(5, 11.67)
+          ..lineTo(5, 7.5)
+          ..cubicTo(5, 4.74, 7.24, 2.5, 10, 2.5)
+          ..close()
+          ..moveTo(10, 2.5)
+          ..lineTo(10, 0.83)
+          ..moveTo(8.33, 18.33)
+          ..lineTo(11.67, 18.33);
+        break;
+      case _IconType.settings:
+        path
+          ..moveTo(7.5, 1.67)
+          ..lineTo(6.67, 4.17)
+          ..lineTo(4.17, 3.33)
+          ..lineTo(1.67, 7.5)
+          ..lineTo(4.17, 9.17)
+          ..lineTo(4.17, 11.67)
+          ..lineTo(1.67, 13.33)
+          ..lineTo(4.17, 17.5)
+          ..lineTo(6.67, 16.67)
+          ..lineTo(8.33, 18.33)
+          ..lineTo(12.5, 18.33)
+          ..lineTo(13.33, 15.83)
+          ..lineTo(15.83, 16.67)
+          ..lineTo(18.33, 12.5)
+          ..lineTo(15.83, 10.83)
+          ..lineTo(15.83, 8.33)
+          ..lineTo(18.33, 6.67)
+          ..lineTo(15.83, 2.5)
+          ..lineTo(13.33, 3.33)
+          ..lineTo(11.67, 1.67)
+          ..close();
+        canvas.drawCircle(const Offset(10, 10), 3.33, paint);
+        break;
+      case _IconType.plus:
+        path
+          ..moveTo(9.5, 3.17)
+          ..lineTo(9.5, 15.83)
+          ..moveTo(3.17, 9.5)
+          ..lineTo(15.83, 9.5);
+        break;
+      case _IconType.arrowUp:
+        path
+          ..moveTo(10.5, 18.375)
+          ..lineTo(10.5, 3.5)
+          ..moveTo(16.625, 9.625)
+          ..lineTo(10.5, 3.5)
+          ..lineTo(4.375, 9.625);
+        break;
+      case _IconType.arrowDown:
+        path
+          ..moveTo(10.5, 2.625)
+          ..lineTo(10.5, 17.5)
+          ..moveTo(16.625, 11.375)
+          ..lineTo(10.5, 17.5)
+          ..lineTo(4.375, 11.375);
+        break;
+      case _IconType.dots:
+        final fillPaint = Paint()
+          ..color = Colors.black
+          ..style = PaintingStyle.fill;
+        for (final y in [4.17, 10.0, 15.83]) {
+          canvas.drawCircle(Offset(10, y), 0.92, fillPaint);
+          canvas.drawCircle(Offset(10, y), 0.92, paint);
+        }
+        return;
+      case _IconType.arrowRight:
+        path
+          ..moveTo(2.5, 10)
+          ..lineTo(16.67, 10)
+          ..moveTo(11.67, 15)
+          ..lineTo(16.67, 10)
+          ..lineTo(11.67, 5);
+        break;
+      case _IconType.navHome:
         path
           ..moveTo(3.33, 8.33)
           ..lineTo(10, 2.5)
@@ -975,16 +848,16 @@ class _NavIconPainter extends CustomPainter {
           ..lineTo(3.33, 17.5)
           ..close();
         break;
-      case 1: // Transfers
+      case _IconType.navTransfers:
         canvas.drawArc(
-          const Rect.fromCircle(center: Offset(10, 10.7), radius: 6.6),
+          Rect.fromCircle(center: const Offset(10, 10.7), radius: 6.6),
           0.6,
           4.7,
           false,
           paint,
         );
         canvas.drawArc(
-          const Rect.fromCircle(center: Offset(9.5, 11.5), radius: 3.5),
+          Rect.fromCircle(center: const Offset(9.5, 11.5), radius: 3.5),
           0.7,
           3.5,
           false,
@@ -993,9 +866,12 @@ class _NavIconPainter extends CustomPainter {
         path
           ..moveTo(16.67, 5.83)
           ..lineTo(16.67, 10.83)
-          ..lineTo(11.67, 10.83);
+          ..lineTo(11.67, 10.83)
+          ..moveTo(15.83, 10.83)
+          ..lineTo(18.33, 8.33)
+          ..lineTo(15.83, 5.83);
         break;
-      case 2: // Cards
+      case _IconType.navCards:
         path
           ..moveTo(17.5, 9.17)
           ..lineTo(17.5, 3.33)
@@ -1009,7 +885,7 @@ class _NavIconPainter extends CustomPainter {
           ..moveTo(10.83, 15.42)
           ..lineTo(17.5, 15.42);
         break;
-      case 3: // Stocks
+      case _IconType.navStocks:
         path
           ..moveTo(2.5, 11.67)
           ..lineTo(7.5, 14.17)
@@ -1023,20 +899,31 @@ class _NavIconPainter extends CustomPainter {
           ..lineTo(17.5, 16.67)
           ..close();
         break;
-      case 4: // Offers
+      case _IconType.navOffers:
         canvas.drawCircle(const Offset(10, 7.5), 5.83, paint);
         path
           ..moveTo(6.67, 12.5)
           ..lineTo(5.83, 19.17)
           ..lineTo(10, 16.67)
           ..lineTo(14.17, 19.17)
-          ..lineTo(13.33, 12.5);
+          ..lineTo(13.33, 12.5)
+          ..moveTo(10, 3.33)
+          ..lineTo(11.08, 5.83)
+          ..lineTo(13.75, 6.0)
+          ..lineTo(11.67, 7.83)
+          ..lineTo(12.33, 10.42)
+          ..lineTo(10, 9.0)
+          ..lineTo(7.67, 10.42)
+          ..lineTo(8.33, 7.83)
+          ..lineTo(6.25, 6.0)
+          ..lineTo(8.92, 5.83)
+          ..close();
         break;
     }
     canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(covariant _NavIconPainter oldDelegate) =>
-      oldDelegate.color != color || oldDelegate.index != index;
+  bool shouldRepaint(covariant _UnifiedSvgPainter oldDelegate) =>
+      oldDelegate.type != type || oldDelegate.color != color;
 }
